@@ -1,0 +1,33 @@
+{
+  "name": "pto-balance-calculator",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"wrangler dev --local --port 8787\"",
+    "build": "tsc -b && vite build",
+    "test": "vitest run",
+    "deploy": "npm run build && wrangler deploy",
+    "hash-password": "node scripts/hash-password.mjs"
+  },
+  "dependencies": {
+    "@mantine/core": "^9.5.2",
+    "@mantine/dates": "^9.5.2",
+    "@mantine/hooks": "^9.5.2",
+    "dayjs": "^1.11.23",
+    "hono": "^4.13.5",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260827.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.0",
+    "concurrently": "^10.0.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11",
+    "wrangler": "^4.127.0"
+  }
+}
