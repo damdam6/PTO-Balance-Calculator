@@ -2,7 +2,7 @@
 
 | 항목 | 내용 |
 |---|---|
-| 문서 버전 | v0.1 |
+| 문서 버전 | v0.2 |
 | 작성일 | 2026-08-27 |
 | 근거 문서 | PRD.md v0.4 |
 
@@ -16,14 +16,16 @@
 | API 프레임워크 | **Hono** | Workers 표준 라우터. 경량, 타입 지원, 미들웨어(쿠키/인증) 내장 |
 | 데이터베이스 | **Cloudflare D1** (SQLite) | 계정 1개 + 설정 + 연차 내역 수준의 소규모 데이터에 충분, 무료 티어로 커버 |
 | 프런트엔드 | **React 18 + Vite + TypeScript** | SPA 1장짜리 앱. 캘린더/모달/뷰 전환 등 상태 관리에 React가 적합 |
-| 스타일 | **CSS (vanilla, CSS 변수)** | 화면 4개 수준이라 Tailwind 등 불필요. 모바일 단일 레이아웃 |
-| 캘린더 | **자체 구현** | 월간 그리드 + 커스텀 셀(상태색/뱃지)이 핵심이라 라이브러리보다 직접 그리는 게 단순 |
+| 디자인 시스템 | **Mantine v7** | 폼·모달·탭·버튼 등 필요한 컴포넌트 전부 제공, TS 지원 우수, 모바일에서도 무난. 테마 변수로 톤 통일 |
+| 캘린더 | **@mantine/dates Calendar** | Mantine 생태계 캘린더. `renderDay`로 날짜 셀을 통째로 커스텀 렌더링 → 초록/빨강 상태색·사용량 뱃지·발생일 마커 구현에 적합 |
 | 인증 | **PBKDF2 (Web Crypto) + HMAC 서명 세션 쿠키** | Workers 런타임엔 bcrypt 불가 → Web Crypto 내장 PBKDF2 사용. 세션은 서버 저장 없이 서명 쿠키(stateless) |
 | 테스트 | **Vitest** | 계산 로직(발생/차감/판정) 단위 테스트 |
 | 배포 도구 | **Wrangler** | `wrangler deploy` 한 번으로 워커+에셋+D1 마이그레이션 관리 |
 
 ### 명시적으로 선택하지 않은 것
 - **Next.js / Remix**: SSR 불필요. 정적 SPA + 작은 API면 충분
+- **Ant Design**: 데스크톱 관리자 UI 지향이라 모바일 웹과 안 맞음. 모바일용 antd-mobile은 캘린더 커스터마이즈가 약하고 별도 생태계
+- **shadcn/ui + Tailwind**: 자유도는 높지만 이 규모에선 조립 비용이 이득보다 큼
 - **Cloudflare KV**: 연차 내역은 목록 조회·수정·삭제가 있어 관계형(D1)이 맞음
 - **외부 인증(OAuth 등)**: 사전 등록 단일 계정 정책(PRD §8)이라 과함
 
@@ -59,7 +61,8 @@
 │  │  └─ Settings.tsx
 │  ├─ components/
 │  │  ├─ SummaryBar.tsx    # 오늘 잔여 + 선택 날짜 잔여
-│  │  └─ LeaveModal.tsx    # 연차 등록/수정
+│  │  ├─ LeaveModal.tsx    # 연차 등록/수정 (Mantine Modal + 폼)
+│  │  └─ theme.ts          # Mantine 테마 (색·간격 토큰)
 │  └─ api.ts               # fetch 래퍼
 ├─ shared/
 │  └─ balance.ts           # 발생/차감/판정 순수 함수 (프런트·워커 공용)
@@ -166,5 +169,5 @@ npm run deploy     # vite build && wrangler deploy
 |---|---|---|
 | M1 | 프로젝트 셋업(Vite+React+Hono+wrangler), `shared/balance.ts` + 테스트 | `npm test` 그린 |
 | M2 | D1 스키마·마이그레이션, 로그인/세션, settings·leaves API | curl로 CRUD 동작 |
-| M3 | 로그인 화면, 요약 바(오늘+선택 날짜), 캘린더 뷰, 리스트 뷰, 등록 모달 | 로컬에서 전체 플로우 동작 |
+| M3 | Mantine 셋업, 로그인 화면, 요약 바(오늘+선택 날짜), 캘린더 뷰(@mantine/dates), 리스트 뷰, 등록 모달 | 로컬에서 전체 플로우 동작 |
 | M4 | 모바일 스타일 폴리시(~430px), 배포 스크립트, 실배포 | Cloudflare 실제 URL 접속 확인 |
