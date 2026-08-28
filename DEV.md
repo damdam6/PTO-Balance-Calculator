@@ -17,7 +17,7 @@
 | 데이터베이스 | **Cloudflare D1** (SQLite) | 계정 1개 + 설정 + 연차 내역 수준의 소규모 데이터에 충분, 무료 티어로 커버 |
 | 프런트엔드 | **React 18 + Vite + TypeScript** | SPA 1장짜리 앱. 캘린더/모달/뷰 전환 등 상태 관리에 React가 적합 |
 | 디자인 시스템 | **Mantine v7** | 폼·모달·탭·버튼 등 필요한 컴포넌트 전부 제공, TS 지원 우수, 모바일에서도 무난. 테마 변수로 톤 통일 |
-| 캘린더 | **@mantine/dates Calendar** | Mantine 생태계 캘린더. `renderDay`로 날짜 셀을 통째로 커스텀 렌더링 → 초록/빨강 상태색·사용량 뱃지·발생일 마커 구현에 적합 |
+| 캘린더 | **@mantine/dates Calendar** | Mantine 생태계 캘린더. `renderDay`로 셀 내부에 커스텀 요소 렌더링 → 연차 건 평가 결과(초록/빨강)를 **셀 안의 사용량 뱃지에** 입히고, 발생일 마커 표시. 셀 배경 전체는 칠하지 않음 |
 | 인증 | **PBKDF2 (Web Crypto) + HMAC 서명 세션 쿠키** | Workers 런타임엔 bcrypt 불가 → Web Crypto 내장 PBKDF2 사용. 세션은 서버 저장 없이 서명 쿠키(stateless) |
 | 테스트 | **Vitest** | 계산 로직(발생/차감/판정) 단위 테스트 |
 | 배포 도구 | **Wrangler** | `wrangler deploy` 한 번으로 워커+에셋+D1 마이그레이션 관리 |
