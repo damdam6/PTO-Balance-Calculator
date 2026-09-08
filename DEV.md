@@ -2,7 +2,7 @@
 
 | 항목 | 내용 |
 |---|---|
-| 문서 버전 | v0.2 |
+| 문서 버전 | v0.3 |
 | 작성일 | 2026-08-27 |
 | 근거 문서 | PRD.md v0.4 |
 
@@ -27,7 +27,7 @@
 - **Ant Design**: `Calendar cellRender`로 셀 내 뱃지 표시는 가능하나(재검토 완료), 캘린더가 대시보드형/카드형 두 모드뿐이라 모바일 폭(~430px)에서 손볼 게 많고 번들이 무거움. 기능상 배제가 아니라 모바일 핏·경량성에서 Mantine 우위
 - **shadcn/ui + Tailwind**: 자유도는 높지만 이 규모에선 조립 비용이 이득보다 큼
 - **Cloudflare KV**: 연차 내역은 목록 조회·수정·삭제가 있어 관계형(D1)이 맞음
-- **외부 인증(OAuth 등)**: 사전 등록 단일 계정 정책(PRD §8)이라 과함
+- **외부 인증(OAuth 등)**: 아이디/비밀번호 자체 가입으로 충분, 외부 의존 불필요
 
 ---
 
@@ -114,6 +114,7 @@ CREATE INDEX idx_leaves_user_date ON leaves(user_id, date);
 
 | 메서드 | 경로 | 요청 | 응답 | 비고 |
 |---|---|---|---|---|
+| POST | /api/signup | `{username, password, code?}` | `{ok}` + Set-Cookie | 400 invalid_username/weak_password, 403 invalid_code, 409 username_taken |
 | POST | /api/login | `{username, password}` | `{ok}` + Set-Cookie | 실패 401 |
 | POST | /api/logout | – | `{ok}` | 쿠키 삭제 |
 | GET  | /api/me | – | `{username}` | 세션 확인용 |
@@ -160,7 +161,7 @@ npm run deploy     # vite build && wrangler deploy
 
 - D1 생성: `wrangler d1 create pto-db` → `wrangler.toml`에 바인딩 `DB`
 - 마이그레이션: `wrangler d1 migrations apply pto-db`
-- 시크릿: `wrangler secret put SESSION_SECRET`
+- 시크릿: `wrangler secret put SESSION_SECRET` (+ 선택: `SIGNUP_CODE` — 설정 시 가입 코드 요구)
 - 계정 시드: `wrangler d1 execute pto-db --command "INSERT INTO users ..."` (해시는 스크립트로 생성)
 
 ## 8. 구현 순서 (PRD 마일스톤 매핑)

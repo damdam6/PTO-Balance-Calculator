@@ -17,8 +17,9 @@ npm run dev                                        # vite(5173, /api 프록시) 
 npm test                                           # 계산 로직 단위 테스트
 ```
 
-`.dev.vars`의 `SEED_USERNAME`/`SEED_PASSWORD`로 지정한 계정은
-**users 테이블이 비어 있을 때 첫 로그인 시 자동 생성**된다 (회원가입 없음).
+계정은 화면의 **회원가입 탭**에서 직접 만들 수 있다 (아이디 3~20자, 비밀번호 8자+).
+`SIGNUP_CODE` 시크릿을 설정하면 그 코드를 입력한 사람만 가입할 수 있다.
+`.dev.vars`의 `SEED_USERNAME`/`SEED_PASSWORD` 계정 자동 생성(최초 로그인 시)도 계속 지원된다.
 
 ## Cloudflare 배포
 
@@ -29,13 +30,15 @@ npx wrangler d1 create pto-db
 npx wrangler d1 migrations apply pto-db --remote
 
 npx wrangler secret put SESSION_SECRET   # 긴 랜덤 문자열
-npx wrangler secret put SEED_USERNAME    # 로그인 아이디
-npx wrangler secret put SEED_PASSWORD    # 로그인 비밀번호
+npx wrangler secret put SIGNUP_CODE      # (선택) 설정하면 가입 시 코드 요구
+# (선택) 회원가입 대신 시드 계정을 쓰려면:
+npx wrangler secret put SEED_USERNAME
+npx wrangler secret put SEED_PASSWORD
 
 npm run deploy                            # vite build + wrangler deploy
 ```
 
-배포 후 발급된 `*.workers.dev` URL로 접속해 시드 계정으로 로그인하면 된다.
+배포 후 발급된 `*.workers.dev` URL로 접속해 회원가입 후 로그인하면 된다.
 계정을 수동으로 넣고 싶으면 `npm run hash-password -- <비밀번호>`로 해시를 만들어
 `wrangler d1 execute pto-db --remote --command "INSERT INTO users (username, password_hash) VALUES ('아이디', '<해시>')"` 하면 된다.
 

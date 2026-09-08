@@ -35,6 +35,11 @@ export interface ApiLeave {
 export const api = {
   login: (username: string, password: string) =>
     request<{ ok: true }>('/api/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+  signup: (username: string, password: string, code?: string) =>
+    request<{ ok: true }>('/api/signup', {
+      method: 'POST',
+      body: JSON.stringify({ username, password, code: code || undefined }),
+    }),
   logout: () => request<{ ok: true }>('/api/logout', { method: 'POST' }),
   me: () => request<{ username: string }>('/api/me'),
   getSettings: () => request<{ settings: ApiSettings | null }>('/api/settings'),

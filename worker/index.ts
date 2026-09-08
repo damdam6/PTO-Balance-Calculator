@@ -17,6 +17,8 @@ export interface Env {
   // 최초 부팅 시 계정 시드용 (선택): wrangler secret 또는 vars
   SEED_USERNAME?: string
   SEED_PASSWORD?: string
+  // 설정 시 회원가입에 이 가입 코드를 요구 (선택)
+  SIGNUP_CODE?: string
 }
 
 type Vars = { userId: number }
@@ -33,6 +35,43 @@ function isValidDate(s: unknown): s is string {
 }
 
 // ---- 인증 ----
+
+const USERNAME_RE = /^[a-zA-Z0-9_-]{3,20}$/
+const PASSWORD_MIN = 8
+
+app.post('/api/signup', async (c) => {
+  const body = await c.req
+    .json<{ username?: string; password?: string; code?: string }>()
+    .catch(() => null)
+  if (typeof body?.username !== 'string' || typeof body?.password !== 'string') {
+    return c.json({ error: 'bad_request' }, 400)
+  }
+  if (!USERNAME_RE.test(body.username)) return c.json({ error: 'invalid_username' }, 400)
+  if (body.password.length < PASSWORD_MIN) return c.json({ error: 'weak_password' }, 400)
+  if (c.env.SIGNUP_CODE && body.code !== c.env.SIGNUP_CODE) {
+    return c.json({ error: 'invalid_code' }, 403)
+  }
+  const hash = await hashPassword(body.password)
+  let userId: number
+  try {
+    const r = await c.env.DB.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)')
+      .bind(body.username, hash)
+      .run()
+    userId = r.meta.last_row_id as number
+  } catch (e) {
+    if (String(e).includes('UNIQUE')) return c.json({ error: 'username_taken' }, 409)
+    throw e
+  }
+  const token = await createSessionToken(c.env.SESSION_SECRET, userId)
+  setCookie(c, SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'Lax',
+    path: '/',
+    maxAge: SESSION_MAX_AGE,
+  })
+  return c.json({ ok: true })
+})
 
 app.post('/api/login', async (c) => {
   const body = await c.req.json<{ username?: string; password?: string }>().catch(() => null)
