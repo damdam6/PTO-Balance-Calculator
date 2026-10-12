@@ -43,9 +43,11 @@ export default function LeaveModal({
   const [type, setType] = useState<LeaveType>('full')
   const [customAmount, setCustomAmount] = useState<number | string>(0.75)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!opened) return
+    setError(null)
     setDate(initial.date)
     if ('amount' in initial) {
       setType(initial.type)
@@ -62,9 +64,25 @@ export default function LeaveModal({
   const save = async () => {
     if (!valid || !date) return
     setSaving(true)
+    setError(null)
     try {
       await onSave({ date, amount, type })
       onClose()
+    } catch {
+      setError('저장하지 못했습니다. 잠시 후 다시 시도해주세요.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const remove = async () => {
+    if (!onDelete || !window.confirm('이 연차를 삭제할까요?')) return
+    setSaving(true)
+    setError(null)
+    try {
+      await onDelete()
+    } catch {
+      setError('삭제하지 못했습니다. 잠시 후 다시 시도해주세요.')
     } finally {
       setSaving(false)
     }
@@ -118,9 +136,14 @@ export default function LeaveModal({
             }
           />
         )}
+        {error && (
+          <Text size="sm" c="red">
+            {error}
+          </Text>
+        )}
         <Group justify="space-between" mt="xs">
           {editing && onDelete ? (
-            <Button variant="subtle" color="red" onClick={() => onDelete()}>
+            <Button variant="subtle" color="red" onClick={remove} disabled={saving}>
               삭제
             </Button>
           ) : (

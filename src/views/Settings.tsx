@@ -21,6 +21,7 @@ export default function SettingsDrawer({
   const [baseDate, setBaseDate] = useState<string | null>(current?.baseDate ?? null)
   const [baseBalance, setBaseBalance] = useState<number | string>(current?.baseBalance ?? 0)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const valid =
     Number.isInteger(Number(accrualDay)) &&
@@ -32,6 +33,7 @@ export default function SettingsDrawer({
   const save = async () => {
     if (!valid || !baseDate) return
     setSaving(true)
+    setError(null)
     try {
       const s: Settings = {
         accrualDay: Number(accrualDay),
@@ -41,6 +43,8 @@ export default function SettingsDrawer({
       await api.putSettings(s)
       onSaved(s)
       onClose()
+    } catch {
+      setError('저장하지 못했습니다. 잠시 후 다시 시도해주세요.')
     } finally {
       setSaving(false)
     }
@@ -75,6 +79,11 @@ export default function SettingsDrawer({
         <Alert color="gray" p="xs">
           <Text size="xs">기준일 이전의 연차 건은 계산에 반영되지 않습니다.</Text>
         </Alert>
+        {error && (
+          <Text size="sm" c="red">
+            {error}
+          </Text>
+        )}
         <Button onClick={save} disabled={!valid} loading={saving} fullWidth>
           저장
         </Button>

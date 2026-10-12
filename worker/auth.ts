@@ -44,15 +44,18 @@ export async function verifyPassword(password: string, stored: string): Promise<
   return diff === 0
 }
 
-async function hmac(secret: string, data: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
+function hmacKey(secret: string): Promise<CryptoKey> {
+  return crypto.subtle.importKey(
     'raw',
     enc.encode(secret),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
-    ['sign'],
+    ['sign', 'verify'],
   )
-  return b64(await crypto.subtle.sign('HMAC', key, enc.encode(data)))
+}
+
+async function hmac(secret: string, data: string): Promise<string> {
+  return b64(await crypto.subtle.sign('HMAC', await hmacKey(secret), enc.encode(data)))
 }
 
 /** 세션 토큰: base64(userId.expiresEpochSec).서명 */
@@ -66,13 +69,22 @@ export async function verifySessionToken(secret: string, token: string): Promise
   if (dot < 0) return null
   const payload = token.slice(0, dot)
   const sig = token.slice(dot + 1)
-  if (sig !== (await hmac(secret, payload))) return null
+  // 서명 비교는 타이밍 공격을 피하기 위해 crypto.subtle.verify(상수 시간)로 한다
   let decoded: string
+  let sigBytes: Uint8Array
   try {
     decoded = atob(payload)
+    sigBytes = b64decode(sig)
   } catch {
     return null
   }
+  const valid = await crypto.subtle.verify(
+    'HMAC',
+    await hmacKey(secret),
+    sigBytes as BufferSource,
+    enc.encode(payload),
+  )
+  if (!valid) return null
   const [userIdStr, expStr] = decoded.split('.')
   const userId = Number(userIdStr)
   const exp = Number(expStr)
