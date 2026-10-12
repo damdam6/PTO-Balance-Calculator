@@ -1,0 +1,3 @@
+SESSION_SECRET=change-me-to-a-long-random-string
+SEED_USERNAME=admin
+SEED_PASSWORD=change-me
