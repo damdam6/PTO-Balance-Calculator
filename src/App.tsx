@@ -144,6 +144,7 @@ export default function App() {
           ) : (
             <ListView
               evaluated={evaluated}
+              today={today}
               onSelect={(l) =>
                 setModalState({
                   mode: 'edit',
