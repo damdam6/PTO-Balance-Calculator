@@ -23,6 +23,17 @@ npm test                                           # 계산 로직 단위 테스
 
 ## Cloudflare 배포
 
+main에 push(PR 머지)되면 GitHub Actions(`.github/workflows/deploy.yml`)가
+테스트 → 빌드 → D1 마이그레이션 → `wrangler deploy`를 자동으로 수행한다.
+Actions 탭의 **Run workflow**로 수동 실행도 된다.
+
+필요한 GitHub 저장소 시크릿 (Settings → Secrets and variables → Actions):
+
+- `CLOUDFLARE_API_TOKEN` — Cloudflare API 토큰 ("Edit Cloudflare Workers" 템플릿 + Account › D1 › Edit 권한)
+- `CLOUDFLARE_ACCOUNT_ID` — Cloudflare 계정 ID
+
+새 Cloudflare 계정에 처음 셋업할 때만 아래를 한 번 실행한다.
+
 ```bash
 npx wrangler login
 npx wrangler d1 create pto-db
@@ -35,7 +46,7 @@ npx wrangler secret put SIGNUP_CODE      # (선택) 설정하면 가입 시 코�
 npx wrangler secret put SEED_USERNAME
 npx wrangler secret put SEED_PASSWORD
 
-npm run deploy                            # vite build + wrangler deploy
+npm run deploy                            # (선택) 로컬에서 직접 배포: vite build + wrangler deploy
 ```
 
 배포 후 발급된 `*.workers.dev` URL로 접속해 회원가입 후 로그인하면 된다.
