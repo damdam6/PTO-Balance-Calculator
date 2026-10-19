@@ -159,6 +159,7 @@ npm test           # vitest
 npm run deploy     # vite build && wrangler deploy
 ```
 
+- 자동 배포: main push 시 GitHub Actions(`.github/workflows/deploy.yml`)가 test → build → 마이그레이션 → deploy 수행
 - D1 생성: `wrangler d1 create pto-db` → `wrangler.toml`에 바인딩 `DB`
 - 마이그레이션: `wrangler d1 migrations apply pto-db`
 - 시크릿: `wrangler secret put SESSION_SECRET` (+ 선택: `SIGNUP_CODE` — 설정 시 가입 코드 요구)

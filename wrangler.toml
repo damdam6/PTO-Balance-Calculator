@@ -11,4 +11,4 @@ run_worker_first = ["/api/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "pto-db"
-database_id = "00000000-0000-0000-0000-000000000000"  # `wrangler d1 create pto-db` 결과로 교체
+database_id = "a4aa319c-2eac-4f3d-9129-6f5fdef027f4"
