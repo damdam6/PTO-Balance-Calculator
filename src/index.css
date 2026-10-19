@@ -18,6 +18,9 @@ body {
 .pto-calendar table {
   width: 100%;
 }
+.pto-calendar .mantine-Calendar-calendarHeader {
+  max-width: none;
+}
 .pto-calendar td {
   padding: 1px;
 }
